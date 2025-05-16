@@ -9,6 +9,7 @@ First off, you need to create a new Spring Boot project and add two important "p
 Then, you need to tell Spring Boot where to find Kafka and how to "group" the things it reads. This is done by editing the `application.properties` file and adding these lines:
 
 spring.kafka.bootstrap-servers=localhost:9092
+
 spring.kafka.consumer.group-id=my-group-id
 
 
