@@ -1,31 +1,47 @@
-# Spring Boot Kafka Integration Tutorial Summary
+# A Little Guide to Integrating Spring Boot and Kafka
 
-This document summarizes a step-by-step guide on integrating Apache Kafka, a distributed streaming platform, with a Spring Boot application. The tutorial aims to equip developers with the knowledge to build scalable, fault-tolerant, and high-throughput applications by leveraging Kafka's capabilities within a Spring Boot environment.
+Hey! I wanted to try and put together a small guide on how to make a Spring Boot application talk to Apache Kafka. Kafka is a bit complex, but it can be useful for making applications work better.
 
-## Prerequisites
+To follow along, I think it helps to have a basic idea of Java and Spring Boot. Then, you'll need to have the Java Development Kit (JDK) installed and an IDE like IntelliJ or Eclipse. Lastly, you need to have Apache Kafka installed and running on your computer.
 
-The guide assumes the reader has a basic understanding of Java and Spring Boot, has Java Development Kit (JDK) 8 or later installed, uses a suitable IDE (like IntelliJ IDEA or Eclipse), and has a running Apache Kafka instance on their local machine.
+First off, you need to create a new Spring Boot project and add two important "pieces": `spring-kafka` and `spring-boot-starter-web`. You can add these using a website like Spring Initializr or by editing the `pom.xml` (for Maven) or `build.gradle` (for Gradle) files.
 
-## Setting Up the Spring Boot Project
+Then, you need to tell Spring Boot where to find Kafka and how to "group" the things it reads. This is done by editing the `application.properties` file and adding these lines:
 
-The initial step involves creating a new Spring Boot project and including the necessary dependencies: `spring-kafka` and `spring-boot-starter-web`. This can be done using Spring Initializr or by manually adding the dependencies to the project's build file (either Maven's `pom.xml` or Gradle's `build.gradle`).
+spring.kafka.bootstrap-servers=localhost:9092
+spring.kafka.consumer.group-id=my-group-id
 
-## Configuring Kafka in Spring Boot
 
-The next crucial step is configuring the Kafka broker address (`spring.kafka.bootstrap-servers`) and the consumer group ID (`spring.kafka.consumer.group-id`) within the `application.properties` file.
+To send messages to Kafka, I tried to create a "producer." There are some configuration files and then another file that takes the message and sends it to Kafka.
 
-## Creating a Kafka Producer
+Similarly, to read messages from Kafka, I created a "consumer." Here too, there are configurations and a file that "listens" for messages arriving from Kafka.
 
-To send messages to Kafka, the tutorial details the creation of a `KafkaProducerConfig` class to configure the producer factory and a `KafkaTemplate`. Subsequently, a `MessageProducer` class is created, which utilizes the `KafkaTemplate` to send messages to a specified Kafka topic.
+To see if everything works, I created a simple web page. If you send a "POST" request to this address: `http://localhost:8080/send?message=Hello_Kafka`, the message should reach Kafka and then be read by the consumer, which will show it in the console.
 
-## Creating a Kafka Consumer
+I hope this little guide can be helpful to someone who's just starting to see how this Spring Boot and Kafka thing works!
 
-To receive messages from Kafka, the guide explains how to create a `KafkaConsumerConfig` class to configure the consumer factory and a `ConcurrentKafkaListenerContainerFactory`. Following this, a `MessageConsumer` class is developed, which uses the `@KafkaListener` annotation to subscribe to a specific Kafka topic and process incoming messages.
+**A little tip (if you use Docker):** To get a Kafka instance running quickly, I found this `docker-compose.yml` file that seems to work:
 
-## Testing the Kafka Integration
-
-The tutorial concludes with instructions on testing the integration. This involves creating a REST controller with an endpoint to send messages using the `MessageProducer`. By sending a POST request to this endpoint: http://localhost:8080/send?message=Hello_Kafka, users can observe the message being sent to the Kafka topic and subsequently received and processed by the configured consumer.
-
-## Conclusion
-
-The summarized tutorial provides a comprehensive overview of integrating Kafka into a Spring Boot application, covering the essential steps from project setup and configuration to creating producers and consumers, and finally, testing the integration. This knowledge empowers developers to effectively incorporate Kafka into their Spring Boot projects.
+```yaml
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
