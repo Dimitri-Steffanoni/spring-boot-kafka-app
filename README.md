@@ -24,7 +24,7 @@ To receive messages from Kafka, the guide explains how to create a `KafkaConsume
 
 ## Testing the Kafka Integration
 
-The tutorial concludes with instructions on testing the integration. This involves creating a REST controller with an endpoint to send messages using the `MessageProducer`. By sending a POST request to this endpoint, users can observe the message being sent to the Kafka topic and subsequently received and processed by the configured consumer.
+The tutorial concludes with instructions on testing the integration. This involves creating a REST controller with an endpoint to send messages using the `MessageProducer`. By sending a POST request to this endpoint: http://localhost:8080/send?message=Hello_Kafka, users can observe the message being sent to the Kafka topic and subsequently received and processed by the configured consumer.
 
 ## Conclusion
 
